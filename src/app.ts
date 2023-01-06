@@ -17,9 +17,15 @@ const io = new Server(server, {
   transports: ['websocket', 'polling'],
 })
 
+io.on('connection', (socket) => {
+  console.warn(chalk.yellow('⚠️  Using the default namespace is not supported'))
+  socket.emit('error', JSON.stringify({ error: 'Using the default namespace is not supported' }))
+  socket.disconnect()
+})
+
 const namespaces = [
   { name: '/party-party', chalk: chalk.red, sendUpdates: true, updateTime: 500 },
-  { name: '/giveaway-o-tron', chalk: chalk.hex('#6441a5') },
+  { name: '/giveaway-o-tron', chalk: chalk.hex('#6441a5'), dontWarnAny: true },
 ]
 
 const namespaceRoomStores: { [k: string]: any } = {}
@@ -47,7 +53,7 @@ for (const ns of namespaces) {
   logger.info('Config:', remaining)
   logger.info(`Found ${Object.keys(handlers).length} handlers`)
   io.of(nsName).on('connection', (socket) => {
-    const channelRoom = socket.handshake.query?.room
+    const channelRoom = socket.handshake.query?.room?.toString() || socket.handshake.query?.channel?.toString()
     let store = namespaceRoomStores[`${nsName}/${channelRoom}`]
     if (!store) {
       store = {}
@@ -63,10 +69,14 @@ for (const ns of namespaces) {
       if (typeof msg === 'string') {
         msgObject = safelyReviveJsonString(logger, msg)
       }
+      if (handlers.any) {
+        handlers.any({ socket, store, logger, msg: msgObject, room: channelRoom })
+      }
+
       const type = msgObject?.type
       if (handlers[type]) {
         handlers[type]?.call(undefined, { socket, store, logger, msg: msgObject, room: channelRoom })
-      } else {
+      } else if (!ns.dontWarnAny) {
         logger.warn('[warn][missed-event]', { msg })
       }
     })

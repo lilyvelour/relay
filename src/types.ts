@@ -9,10 +9,12 @@ export type EventHandler<Store> = {
     socket,
     msg,
     store,
+    room,
   }: {
     socket: Socket
     msg?: any
     store: Partial<Store>
+    room?: string
     logger: {
       info: typeof console.info
       warn: typeof console.warn

@@ -1,8 +1,8 @@
 import { EventHandler } from '../types'
 
 const handlers: EventHandler<any> = {
-  test: ({ logger }) => {
-    logger.info('test')
+  test: ({ logger, room, msg }) => {
+    logger.info('test', { room, msg })
   },
 }
 

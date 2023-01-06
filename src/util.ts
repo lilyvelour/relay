@@ -16,3 +16,39 @@ export function chunkArray<T>(arr: T[], chunkSize: number): T[][] {
   }
   return chunks
 }
+
+export function replacer(_key: string, value: any) {
+  if (value instanceof Map) {
+    return {
+      dataType: 'Map',
+      value: Array.from(value.entries()),
+    }
+  } else if (value instanceof Set) {
+    return {
+      dataType: 'Set',
+      value: Array.from(value.values()),
+    }
+  } else {
+    return value
+  }
+}
+
+function reviver(_key: string, value: any) {
+  if (typeof value === 'object' && value !== null) {
+    if (value.dataType === 'Map') {
+      return new Map(value.value)
+    } else if (value.dataType === 'Set') {
+      return new Set(value.value)
+    }
+  }
+  return value
+}
+
+export function safelyReviveJsonString(logger: any, str: string) {
+  try {
+    return JSON.parse(str, reviver)
+  } catch (e) {
+    logger.error(`Failed to revive string: ${str} (${e.message})`)
+    return {}
+  }
+}

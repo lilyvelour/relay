@@ -1,7 +1,9 @@
 import express from 'express'
 import http from 'http'
 import { Server } from 'socket.io'
+import chalk, { Chalk } from 'chalk'
 import eventHandlers from './handlers'
+import { safelyReviveJsonString, replacer } from './util'
 
 const app = express()
 const server = http.createServer(app)
@@ -15,66 +17,62 @@ const io = new Server(server, {
   transports: ['websocket', 'polling'],
 })
 
-const namespaces = [{ name: '/party-party', sendUpdates: true, updateTime: 500 }, { name: '/giveaway-o-tron' }]
+const namespaces = [
+  { name: '/party-party', chalk: chalk.red, sendUpdates: true, updateTime: 500 },
+  { name: '/giveaway-o-tron', chalk: chalk.hex('#6441a5') },
+]
 
 const namespaceRoomStores: { [k: string]: any } = {}
 
-function replacer(_key: string, value: any) {
-  if (value instanceof Map) {
-    return {
-      dataType: 'Map',
-      value: Array.from(value.entries()),
-    }
-  } else if (value instanceof Set) {
-    return {
-      dataType: 'Set',
-      value: Array.from(value.values()),
-    }
-  } else {
-    return value
-  }
-}
-
-function createNamespacedLogger(ns: string) {
+function createNamespacedLogger(ns: string, color: Chalk) {
   const cleanNs = ns.slice(1)
   return {
     warn: function warn(...args: any) {
-      console.warn(`[${cleanNs}]`, ...args)
+      console.warn(color(`[${cleanNs}]`), '⚠️ ', ...args)
     },
     error: function error(...args: any) {
-      console.error(`[${cleanNs}]`, ...args)
+      console.error(color(`[${cleanNs}]`), '☠️ ', ...args)
     },
     info: function info(...args: any) {
-      console.info(`[${cleanNs}]`, ...args)
+      console.info(color(`[${cleanNs}]`), '📝', ...args)
     },
   }
 }
 
 for (const ns of namespaces) {
-  const logger = createNamespacedLogger(ns.name)
-  const handlers = eventHandlers[ns.name] || {}
-  io.of(ns.name).on('connection', (socket) => {
+  const { name: nsName, chalk: c, ...remaining } = ns
+  const logger = createNamespacedLogger(nsName, c)
+  const handlers = eventHandlers[nsName] || {}
+  logger.info('Starting...')
+  logger.info('Config:', remaining)
+  logger.info(`Found ${Object.keys(handlers).length} handlers`)
+  io.of(nsName).on('connection', (socket) => {
     const channelRoom = socket.handshake.query?.room
-    let store = namespaceRoomStores[`${ns.name}/${channelRoom}`]
+    let store = namespaceRoomStores[`${nsName}/${channelRoom}`]
     if (!store) {
       store = {}
-      namespaceRoomStores[`${ns.name}/${channelRoom}`] = store
+      namespaceRoomStores[`${nsName}/${channelRoom}`] = store
     }
-    logger.info('[connection]', { ns: ns.name, channel: channelRoom })
-    handlers.connection?.call(undefined, { socket, store, logger })
+    logger.info('[connection]', { ns: nsName, channel: channelRoom })
+    handlers.connection?.call(undefined, { socket, store, logger, room: channelRoom })
     if (channelRoom) {
       socket.join(`${channelRoom}`)
     }
     socket.on('event', async (msg: { type?: string }) => {
-      if (handlers[msg?.type]) {
-        handlers[msg?.type]?.call(undefined, { socket, store, logger })
+      let msgObject = msg
+      if (typeof msg === 'string') {
+        msgObject = safelyReviveJsonString(logger, msg)
+      }
+      const type = msgObject?.type
+      if (handlers[type]) {
+        handlers[type]?.call(undefined, { socket, store, logger, msg: msgObject, room: channelRoom })
       } else {
         logger.warn('[warn][missed-event]', { msg })
       }
     })
     socket.on('disconnect', () => {
       logger.info('[disconnect]')
-      handlers.disconnect?.call(undefined, { socket, store, logger })
+      handlers.disconnect?.call(undefined, { socket, store, logger, room: channelRoom })
     })
   })
 

@@ -53,7 +53,8 @@ for (const ns of namespaces) {
   logger.info('Config:', remaining)
   logger.info(`Found ${Object.keys(handlers).length} handlers`)
   io.of(nsName).on('connection', (socket) => {
-    const channelRoom = socket.handshake.query?.room?.toString() || socket.handshake.query?.channel?.toString()
+    const channelRoom =
+      socket.handshake.query?.room?.toString() || socket.handshake.query?.channel?.toString() || 'default'
     let store = namespaceRoomStores[`${nsName}/${channelRoom}`]
     if (!store) {
       store = {}

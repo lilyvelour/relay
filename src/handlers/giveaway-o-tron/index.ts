@@ -4,7 +4,7 @@ import { EventHandler } from '../../types'
 const handlers: EventHandler<any> = {
   any: ({ socket, msg, logger }) => {
     if (msg.channelId) {
-      logger.info('Re-emit', { channelId: msg.channelId, login: msg.login })
+      logger.info('Re-emit', { channelId: msg.channelId, login: msg.login, type: msg.type })
       socket.to(`${msg.channelId}`).emit('event', msg)
     }
   },
@@ -59,7 +59,7 @@ const handlers: EventHandler<any> = {
 function guardDiscordData(logger: any, msg: any) {
   const isMissing = !msg.discordGuildId || !msg.discordChannelId || !msg.discordEnabled
   if (isMissing) {
-    logger.warn('Missing data or not enabled', {
+    logger.warn('[discord]', 'Missing data or not enabled', {
       guildId: msg.discordGuildId,
       channelId: msg.discordChannelId,
       enabled: msg.discordEnabled,

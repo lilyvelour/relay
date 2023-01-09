@@ -1,25 +1,28 @@
-import { getRandomArrayItem } from '../util'
-import { EventHandler } from '../types'
+import { getRandomArrayItem } from '../../util'
+import { EventHandler } from '../../types'
 
-interface ReadyCheckStore {
+interface BaseStore<State> {
   players: Map<String, { id: string; name: string; color: string; emoji: string; points: number }>
-  state: 'ready-check'
+  lastTransition?: String
+  state: State
+}
+
+interface ReadyCheckStore extends BaseStore<'ready-check'> {
+  players: Map<String, { id: string; name: string; color: string; emoji: string; points: number }>
   local: {
     ready: string[]
   }
 }
 
-interface PlayingStore {
+interface PlayingStore extends BaseStore<'playing'> {
   players: Map<String, { id: string; name: string; color: string; emoji: string; points: number }>
-  state: 'playing'
   local: {
     count: { [k: string]: number }
   }
 }
 
-interface FinishedStore {
+interface FinishedStore extends BaseStore<'finished'> {
   players: Map<String, { id: string; name: string; color: string; emoji: string; points: number }>
-  state: 'finished'
   local: {}
 }
 
@@ -85,6 +88,7 @@ const partyPartyHandlers: EventHandler<ReadyCheckStore | PlayingStore | Finished
   transition: ({ socket, store, logger }) => {
     logger.info('transition', socket.id, store)
     store.state = transitions[store.state] || (defaultState as any)
+    store.lastTransition = new Date().toISOString()
     store.local = {}
   },
   disconnect: ({ socket, store, logger }) => {

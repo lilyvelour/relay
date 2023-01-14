@@ -104,10 +104,10 @@ async function spotifyApi(
   method: 'GET' | 'POST' | 'PUT' = 'GET'
 ) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let allowedStatus: any = { ok: true }
+  let allowedStatus = true
   if (access === 'restricted') {
     allowedStatus = isAllowed(data)
-    if (!allowedStatus.ok) return allowedStatus
+    if (!allowedStatus) return { ok: false, error: 'restricted' }
   }
   const accessToken = await getRefreshedToken()
   const result = await fetch(`https://api.spotify.com/v1${path}`, {
@@ -119,10 +119,20 @@ async function spotifyApi(
   let resultData = await result.text()
   let type = 'text'
   if (resultData) {
-    resultData = JSON.parse(resultData)
-    type = 'json'
+    try {
+      resultData = JSON.parse(resultData)
+      type = 'json'
+    } catch (e) {
+      console.error('[spotify][api][json][error]', e, resultData)
+    }
   }
-  return { data: resultData, type, ok: true }
+  return {
+    data: type === 'json' ? (resultData as unknown as object) : { text: resultData },
+    type,
+    ok: true,
+    statusCode: result.status,
+    statusText: result.statusText,
+  }
 }
 
 const next = async (body: any) => {

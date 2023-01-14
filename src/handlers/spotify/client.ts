@@ -3,7 +3,6 @@ import fetch from 'node-fetch'
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID as string
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET as string
 const REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN as string
-const IS_DEV = process.env.ENVIRONMENT !== 'production'
 const PERSONAL_SECRET = process.env.SPOTIFY_PERSONAL_SECRET as string
 
 async function getRefreshedToken() {
@@ -120,6 +119,7 @@ const next = async (body: any) => {
   if (ok) {
     return { ...data, ok: 1 }
   } else {
+    console.warn('[spotify][next][error]', data)
     return { ...data, ok: 0 }
   }
 }
@@ -129,6 +129,7 @@ const previous = async (body: any) => {
   if (ok) {
     return { ...data, ok: 1 }
   } else {
+    console.warn('[spotify][previous][error]', data)
     return { ...data, ok: 0 }
   }
 }

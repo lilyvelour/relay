@@ -4,27 +4,27 @@ import spotifyClient from './client'
 const handlers: EventHandler<any> = {
   play: async ({ msg, logger }) => {
     const result = await spotifyClient.pause(msg)
-    logger.info('play', result)
+    logger.info('play', { ok: result.ok })
   },
   pause: async ({ msg, logger }) => {
     const result = await spotifyClient.pause(msg)
-    logger.info('pause', result)
+    logger.info('pause', { ok: result.ok })
   },
   next: async ({ msg, logger }) => {
     const result = await spotifyClient.next(msg)
-    logger.info('next', result)
+    logger.info('next', { ok: result.ok })
   },
   previous: async ({ msg, logger }) => {
     const result = await spotifyClient.previous(msg)
-    logger.info('previous', result)
+    logger.info('previous', { ok: result.ok })
   },
   info: async ({ logger }) => {
     const result = await spotifyClient.info()
-    logger.info('info', result)
+    logger.info('info', { ok: result.ok })
   },
   playing: async ({ logger }) => {
     const result = await spotifyClient.playing()
-    logger.info('playing', result)
+    logger.info('playing', { ok: result.ok })
   },
 }
 

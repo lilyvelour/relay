@@ -16,6 +16,8 @@ For everything websocket related.
   - [Discord Bot Invite Link](https://discord.com/api/oauth2/authorize?client_id=1012331926301974558&permissions=150528&scope=bot)
 - [Party-Party](https://github.com/maael/party-party)
   - Fun side project
+- Spotify
+  - Primarily for [Info](https://github.com/maael/info)
 
 ## Features
 

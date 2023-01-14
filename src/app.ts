@@ -4,6 +4,7 @@ import { Server } from 'socket.io'
 import chalk, { Chalk } from 'chalk'
 import eventHandlers from './handlers'
 import { safelyReviveJsonString, replacer } from './util'
+import spotifySetup from './handlers/spotify/setup'
 
 const app = express()
 const server = http.createServer(app)
@@ -26,6 +27,7 @@ io.on('connection', (socket) => {
 const namespaces = [
   { name: '/party-party', chalk: chalk.red, sendUpdates: true, updateTime: 500 },
   { name: '/giveaway-o-tron', chalk: chalk.hex('#6441a5'), dontWarnAny: true },
+  { name: '/spotify', chalk: chalk.green, setup: spotifySetup, sendUpdates: true, updateTime: 1_000 },
 ]
 
 const namespaceRoomStores: { [k: string]: any } = {}
@@ -101,6 +103,12 @@ for (const ns of namespaces) {
           })
       }
     }, ns.updateTime)
+  }
+
+  if (ns.setup) {
+    logger.info('[setup:start]')
+    ns.setup(ns, namespaceRoomStores)
+    logger.info('[setup:end]')
   }
 }
 

@@ -18,8 +18,19 @@ async function getRefreshedToken() {
       Authorization: `Basic ${Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')}`,
     },
   })
-  const json = (await result.json()) as { access_token: string }
-  return json.access_token
+
+  const text = await result.text()
+  if (text) {
+    try {
+      const json = JSON.parse(text)
+      return json.access_token
+    } catch (e) {
+      console.warn('[spotify][refresh-token][error]', text, e)
+      return null
+    }
+  } else {
+    return null
+  }
 }
 
 const info = async () => {

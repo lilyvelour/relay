@@ -7,7 +7,7 @@
 </p>
 <h1 align="center">Relay</h1>
 
-For everything websocket related.
+For everything websocket related. Currently hosted on [Render](https://render.com/).
 
 ## Current Handlers
 
@@ -18,6 +18,8 @@ For everything websocket related.
   - Fun side project
 - Spotify
   - Primarily for [Info](https://github.com/maael/info)
+- [Patreon Herald](https://github.com/maael/patreon-herald)
+  - Actually used by others ([Mukluk](https://www.twitch.tv/mukluk))
 
 ## Features
 

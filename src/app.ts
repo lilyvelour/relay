@@ -29,6 +29,7 @@ const namespaces = [
   { name: '/giveaway-o-tron', chalk: chalk.hex('#6441a5'), dontWarnAny: true },
   { name: '/spotify', chalk: chalk.green, setup: spotifySetup, sendUpdates: true, updateTime: 1_000 },
   { name: '/patreon-herald', chalk: chalk.hex('#f96854') },
+  { name: '/uk-county-map', chalk: chalk.hex('#384e1d') },
 ]
 
 const namespaceRoomStores: { [k: string]: any } = {}

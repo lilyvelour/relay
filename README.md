@@ -1,11 +1,4 @@
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./.imgs/dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="./.imgs/light.png">
-    <img height="100" width="100" src="./.imgs/light.png">
-  </picture>
-</p>
-<h1 align="center">Giveaway Relay</h1>
+# Giveaway Relay
 
 For everything websocket related.
 

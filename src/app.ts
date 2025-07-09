@@ -4,7 +4,6 @@ import { Server } from 'socket.io'
 import chalk, { Chalk } from 'chalk'
 import eventHandlers from './handlers'
 import { safelyReviveJsonString, replacer } from './util'
-import spotifySetup from './handlers/spotify/setup'
 
 const app = express()
 const server = http.createServer(app)
@@ -24,13 +23,7 @@ io.on('connection', (socket) => {
   socket.disconnect()
 })
 
-const namespaces = [
-  { name: '/party-party', chalk: chalk.red, sendUpdates: true, updateTime: 500 },
-  { name: '/giveaway-o-tron', chalk: chalk.hex('#6441a5'), dontWarnAny: true },
-  { name: '/spotify', chalk: chalk.green, setup: spotifySetup, sendUpdates: true, updateTime: 1_000 },
-  { name: '/patreon-herald', chalk: chalk.hex('#f96854') },
-  { name: '/uk-county-map', chalk: chalk.hex('#384e1d') },
-]
+const namespaces = [{ name: '/giveaway-o-tron', chalk: chalk.hex('#6441a5'), dontWarnAny: true }]
 
 const namespaceRoomStores: { [k: string]: any } = {}
 
@@ -90,28 +83,6 @@ for (const ns of namespaces) {
       handlers.disconnect?.call(undefined, { socket, store, logger, room: channelRoom })
     })
   })
-
-  if (ns.sendUpdates) {
-    setInterval(() => {
-      const rooms = [...io.of(ns.name).adapter.rooms.keys()]
-      const sockets = [...io.of(ns.name).adapter.sids.keys()]
-      const nonSocketRooms = rooms.filter((id) => !sockets.includes(id))
-      for (const room of nonSocketRooms) {
-        io.of(ns.name)
-          .to(room)
-          .emit('event', {
-            type: 'update',
-            data: JSON.stringify(namespaceRoomStores[`${ns.name}/${room}`], replacer),
-          })
-      }
-    }, ns.updateTime)
-  }
-
-  if (ns.setup) {
-    logger.info('[setup:start]')
-    ns.setup(ns, namespaceRoomStores)
-    logger.info('[setup:end]')
-  }
 }
 
 app.get('/', (_req, res) => {

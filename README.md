@@ -5,34 +5,9 @@
     <img height="100" width="100" src="./.imgs/light.png">
   </picture>
 </p>
-<h1 align="center">Relay</h1>
+<h1 align="center">Giveaway Relay</h1>
 
-For everything websocket related. Currently hosted on [Render](https://render.com/).
-
-## Current Handlers
-
-- [Giveaway-o-tron](https://github.com/maael/giveaway-o-tron)
-  - Actually used by others ([Mukluk](https://www.twitch.tv/mukluk))
-  - [Discord Bot Invite Link](https://discord.com/api/oauth2/authorize?client_id=1012331926301974558&permissions=150528&scope=bot)
-- [Party-Party](https://github.com/maael/party-party)
-  - Fun side project
-- Spotify
-  - Primarily for [Info](https://github.com/maael/info)
-- [Patreon Herald](https://github.com/maael/patreon-herald)
-  - Actually used by others ([Mukluk](https://www.twitch.tv/mukluk))
-
-## Features
-
-- Isolated handlers based on [Socket.IO namespacing](https://socket.io/docs/v4/namespaces/)
-  - Namespaced logging/loggers
-- Easy isolated rooms via adding `room` query
-  - Each room receives its own global shared "state" object that is shared across sockets
-  - Configurable recurring pushes to clients of global shared state
-- Handles passing Maps and Sets back (though they will need to be re-hydrated by consumers)
-
-## Reasoning
-
-So I can try to have one server handling all websocket things, with some basic features I generally want, and to reduce costs, while also keeping the services isolated.
+For everything websocket related.
 
 ## Usage
 

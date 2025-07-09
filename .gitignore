@@ -140,3 +140,6 @@ dist
 collector/app.js
 temp
 .tmp
+
+# Built production app
+app.js
